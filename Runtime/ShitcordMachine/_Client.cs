@@ -73,6 +73,9 @@ namespace _CORD_
                 if (error != 0)
                     Debug.LogWarning($"Error: \"{error}\", code: \"{errorCode}\".");
 
+                if (status == Client.Status.Ready)
+                    NUCLEOR.instance.sequencer_parallel.AddRoutine(Util.EWaitForFrames(1, TryUpdateRichPresence));
+
                 client_status.Value = new(status, error, errorCode);
             });
         }

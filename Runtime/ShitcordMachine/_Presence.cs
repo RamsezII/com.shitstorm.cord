@@ -1,6 +1,5 @@
 ﻿using _ARK_;
 using Discord.Sdk;
-using System.IO;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -8,28 +7,6 @@ namespace _CORD_
 {
     partial class ShitcordMachine
     {
-        internal static ulong richp_start_tstamp;
-
-        //--------------------------------------------------------------------------------------------------------------
-
-#if UNITY_EDITOR
-        static void LoadTimestamp()
-        {
-            string fpath = Path.Combine(
-                ArkPaths.instance.Value.dpath_ignore_temp.GetDir(true).FullName,
-                typeof(ShitcordMachine).FullName + "." + nameof(richp_start_tstamp) + ".txt"
-                );
-
-            if (File.Exists(fpath))
-            {
-                string text = File.ReadAllText(fpath);
-                ulong.TryParse(text, out richp_start_tstamp);
-            }
-            else
-                File.WriteAllText(fpath, richp_start_tstamp.ToString());
-        }
-#endif
-
 #if UNITY_EDITOR
         [UnityEditor.MenuItem("Assets/" + nameof(_CORD_) + "/" + nameof(TryUpdateRichPresence))]
 #endif
@@ -61,7 +38,7 @@ namespace _CORD_
             }
 
             ActivityTimestamps timestamps = new();
-            timestamps.SetStart(richp_start_tstamp);
+            timestamps.SetStart((ulong)NUCLEOR.timestamp_appstart.ToUnixTimeMilliseconds());
             activity.SetTimestamps(timestamps);
 
             client.UpdateRichPresence(activity, result =>

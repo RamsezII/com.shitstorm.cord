@@ -55,6 +55,8 @@ namespace _CORD_
 
             ShitcordMachine.client_status.AddListener(OnStatusChanged);
 
+            ShitcordMachine.StartClient();
+
             button_login.onClick.AddListener(ShitcordMachine.TryLogin);
         }
 
@@ -72,6 +74,8 @@ namespace _CORD_
             base.OnDestroy();
 
             ShitcordMachine.client_status.RemoveListener(OnStatusChanged);
+
+            ShitcordMachine.StopClient();
         }
     }
 }

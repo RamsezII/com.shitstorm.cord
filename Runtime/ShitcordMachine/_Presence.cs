@@ -19,14 +19,12 @@ namespace _CORD_
                 return;
             }
 
-            ForceLoadSettings(true);
-
             Activity activity = new();
 
-            activity.SetApplicationId(r_settings.application_id);
+            activity.SetApplicationId(r_settings.GetValue().application_id);
             activity.SetType(ActivityTypes.Playing);
             activity.SetDetails($"{(Application.isEditor ? "[E] " : string.Empty)}{scene.name}");
-            activity.SetState($"net.v{_RUDP_.RudpSocket.version.GetValue().VERSION}");
+            activity.SetState($"net.v{_RUDP_.RudpSocket.r_settings.GetValue().VERSION}");
 
             bool use_party = false;
             if (use_party)

@@ -3,15 +3,23 @@ using UnityEngine;
 
 namespace _CORD_
 {
-    internal static partial class ShitcordMachine
+#if UNITY_EDITOR
+    [UnityEditor.InitializeOnLoad]
+#endif
+    public static partial class ShitcordMachine
     {
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        static ShitcordMachine()
+        {
+        }
 
         //--------------------------------------------------------------------------------------------------------------
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         static void ResetStatics()
         {
-            r_settings = null;
             h_settings = null;
 
             codeVerifier = null;
@@ -21,16 +29,23 @@ namespace _CORD_
 
             client?.Dispose();
             client = null;
+        }
 
-            ForceLoadSettings(true);
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+        static void OnBeforeSceneLoad()
+        {
+            r_settings.GetValue(true);
+            LoadHomeSettings(true);
         }
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         static void OnAfterSceneLoad()
         {
-            NUCLEOR.delegates.OnApplicationFocus += () => ForceLoadSettings(false);
+            NUCLEOR.delegates.OnApplicationUnfocus += () => SaveHomeSettings(false);
+            NUCLEOR.delegates.OnApplicationFocus += () => LoadHomeSettings(false);
 
 #if UNITY_EDITOR
+            NUCLEOR.delegates.OnApplicationFocus += () => r_settings.GetValue(true);
             NUCLEOR.delegates.OnEditorQuit += StopClient;
 #endif
         }

@@ -8,7 +8,7 @@ namespace _CORD_
 {
     partial class ShitcordMachine
     {
-        internal struct ClientStatus
+        public struct ClientStatus
         {
             public Client.Status value;
             public Client.Error error;
@@ -82,7 +82,7 @@ namespace _CORD_
 
         public static void TryLogin()
         {
-            ResourcesJSon.TryReadResourcesJSon(true, out r_settings);
+            RSettings r_settings = ShitcordMachine.r_settings.GetValue();
 
             if (client == null)
                 StartClient();
@@ -108,7 +108,7 @@ namespace _CORD_
                 Debug.LogWarning($"Authorization result: [{result.Error()}]");
             else
                 client.GetToken(
-                    applicationId: r_settings.application_id,
+                    applicationId: r_settings.GetValue().application_id,
                     code: code,
                     codeVerifier: codeVerifier,
                     redirectUri: redirectUri,
@@ -120,7 +120,6 @@ namespace _CORD_
         {
             h_settings.refresh_token = refreshToken;
             h_settings.SaveStaticJSon(true);
-            ResourcesJSon.TryReadResourcesJSon(true, out r_settings);
 
             if (accessToken == null || accessToken == string.Empty)
                 Debug.LogWarning("Failed to retrieve token");

@@ -1,4 +1,5 @@
 ﻿using _ARK_;
+using _UTIL_;
 using System;
 
 namespace _CORD_
@@ -19,15 +20,24 @@ namespace _CORD_
             public string refresh_token;
         }
 
-        internal static RSettings r_settings;
+        internal static readonly LazyValue<RSettings> r_settings = new(() =>
+        {
+            ResourcesJSon.TryReadResourcesJSon(true, out RSettings value);
+            return value;
+        });
+
         internal static HSettings h_settings;
 
         //--------------------------------------------------------------------------------------------------------------
 
-        internal static void ForceLoadSettings(in bool log)
+        static void SaveHomeSettings(in bool log)
         {
-            ResourcesJSon.TryReadResourcesJSon(log, out r_settings);
-            StaticJSon.ReadStaticJSon(ref h_settings, true, log);
+            h_settings.SaveStaticJSon(log);
+        }
+
+        static void LoadHomeSettings(in bool log)
+        {
+            StaticJSon.ReadStaticJSon(out h_settings, true, log);
         }
     }
 }

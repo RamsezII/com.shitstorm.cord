@@ -22,7 +22,7 @@ namespace _CORD_
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         static void OnAfterSceneLoad()
         {
-            if (ShitcordMachine.r_settings.application_id > 0)
+            if (ShitcordMachine.r_settings.GetValue().application_id > 0)
                 OSView.instance.GetSoftwareButton<ShitcordSgui>(force: true);
             else
             {
@@ -32,7 +32,7 @@ namespace _CORD_
                     traductions: new($"SHITCORD ID NOT SET.")
                 );
 #if UNITY_EDITOR
-                windows.onOblivion += () => Application.OpenURL(ShitcordMachine.r_settings.GetFilePath());
+                windows.onOblivion += () => Application.OpenURL(ShitcordMachine.r_settings.GetValue().GetFilePath());
 #endif
             }
         }

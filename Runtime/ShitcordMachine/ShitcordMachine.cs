@@ -3,24 +3,16 @@ using UnityEngine;
 
 namespace _CORD_
 {
-#if UNITY_EDITOR
-    [UnityEditor.InitializeOnLoad]
-#endif
     public static partial class ShitcordMachine
     {
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        static ShitcordMachine()
-        {
-        }
 
         //--------------------------------------------------------------------------------------------------------------
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         static void ResetStatics()
         {
-            h_settings = null;
+            h_settings_infos = null;
+            h_settings_codes.Reset();
 
             codeVerifier = null;
 
@@ -29,6 +21,9 @@ namespace _CORD_
 
             client?.Dispose();
             client = null;
+
+            client_status.Reset();
+            client_status.AddListener(status => Debug.Log($"{typeof(ShitcordMachine)}.CHANGED_STATUS: \"{status.value}\"."));
         }
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
@@ -46,7 +41,6 @@ namespace _CORD_
 
 #if UNITY_EDITOR
             NUCLEOR.delegates.OnApplicationFocus += () => r_settings.GetValue(true);
-            NUCLEOR.delegates.OnEditorQuit += StopClient;
 #endif
         }
     }

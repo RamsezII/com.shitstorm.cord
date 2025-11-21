@@ -75,6 +75,7 @@ namespace _CORD_
 
             ShitcordMachine.client_status.RemoveListener(OnStatusChanged);
 
+            return;
             ShitcordMachine.StopClient();
         }
     }

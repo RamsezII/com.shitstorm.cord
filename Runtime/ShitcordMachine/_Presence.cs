@@ -13,15 +13,28 @@ namespace _CORD_
         public static void TryUpdateRichPresence() => TryUpdateRichPresence(SceneManager.GetActiveScene());
         public static void TryUpdateRichPresence(in Scene scene)
         {
-            if (client == null || client_status.Value.value != Client.Status.Ready)
+            string log_prefixe = $"{typeof(ShitcordMachine)}.TRY_UPDATE";
+
+            if (client == null)
             {
-                Debug.LogWarning($"tried updating Shitcord presence with no client ready.");
+                Debug.LogError($"{log_prefixe} null {nameof(client)} (\"{client}\")");
+                return;
+            }
+
+            if (client_status.Value.value != Client.Status.Ready)
+                Debug.LogWarning($"{log_prefixe} {nameof(client)} is not {Client.Status.Ready} ({client_status._value}).");
+
+            RSettings r_settings = ShitcordMachine.r_settings.GetValue();
+
+            if (r_settings.application_id == 0)
+            {
+                Debug.LogError($"{log_prefixe} {nameof(r_settings.application_id)}: {r_settings.application_id}");
                 return;
             }
 
             Activity activity = new();
 
-            activity.SetApplicationId(r_settings.GetValue().application_id);
+            activity.SetApplicationId(r_settings.application_id);
             activity.SetType(ActivityTypes.Playing);
             activity.SetDetails($"{(Application.isEditor ? "[E] " : string.Empty)}{scene.name}");
             activity.SetState($"net.v{_RUDP_.RudpSocket.r_settings.GetValue().VERSION}");
@@ -42,9 +55,9 @@ namespace _CORD_
             client.UpdateRichPresence(activity, result =>
             {
                 if (result.Successful())
-                    Debug.Log($"Shitcord rich presence updated".ToSubLog());
+                    Debug.Log($"{log_prefixe} success");
                 else
-                    Debug.LogWarning($"Failed to update Shitcord rich presence: \"{result.Error()}\"");
+                    Debug.LogWarning($"{log_prefixe} failure: \"{result.Error()}\"");
             });
         }
     }

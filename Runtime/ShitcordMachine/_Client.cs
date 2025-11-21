@@ -1,5 +1,4 @@
-﻿using _ARK_;
-using _UTIL_;
+﻿using _UTIL_;
 using Discord.Sdk;
 using System;
 using UnityEngine;
@@ -30,10 +29,12 @@ namespace _CORD_
         public static Action<string, LoggingSeverity> logCallback;
         public static readonly ValueHandler<ClientStatus> client_status = new();
 
+#if UNITY_EDITOR
+        const string button_prefixe = "Assets/" + nameof(_CORD_) + "/";
+
         //--------------------------------------------------------------------------------------------------------------
 
-#if UNITY_EDITOR
-        [UnityEditor.MenuItem("Assets/" + nameof(_CORD_) + "/" + nameof(ShitcordMachine) + "." + nameof(StartClient))]
+        [UnityEditor.MenuItem(button_prefixe + nameof(StartClient))]
 #endif
         public static void StartClient()
         {
@@ -64,28 +65,42 @@ namespace _CORD_
                     }
                     logCallback?.Invoke(message, severity);
                 },
-                minSeverity: LoggingSeverity.Info
+                minSeverity: LoggingSeverity.Warning
             );
 
             client.SetStatusChangedCallback((status, error, errorCode) =>
             {
-                Debug.Log($"Status changed: \"{status}\".".ToSubLog());
                 if (error != 0)
                     Debug.LogWarning($"Error: \"{error}\", code: \"{errorCode}\".");
 
                 if (status == Client.Status.Ready)
-                    NUCLEOR.instance.sequencer_parallel.AddRoutine(Util.EWaitForFrames(1, TryUpdateRichPresence));
+                    if (r_settings.GetValue().rich_presence_in_editor)
+                        TryUpdateRichPresence();
 
                 client_status.Value = new(status, error, errorCode);
             });
         }
 
+#if UNITY_EDITOR
+        [UnityEditor.MenuItem(button_prefixe + nameof(TryLogin))]
+#endif
         public static void TryLogin()
         {
+            if (client == null)
+            {
+                Debug.LogError($"null {nameof(client)} (\"{client}\")");
+                return;
+            }
+
             RSettings r_settings = ShitcordMachine.r_settings.GetValue();
 
-            if (client == null)
-                StartClient();
+            if (r_settings.application_id == 0)
+            {
+                Debug.LogError($"{typeof(ShitcordMachine)}.{nameof(RSettings.application_id)}: {r_settings.application_id}");
+                return;
+            }
+
+            string refresh_token = h_settings_codes.GetValue(true).refresh_token;
 
             var authorizationVerifier = client.CreateAuthorizationCodeVerifier();
             codeVerifier = authorizationVerifier.Verifier();
@@ -96,49 +111,49 @@ namespace _CORD_
             args.SetScopes(Client.GetDefaultCommunicationScopes());
             args.SetCodeChallenge(authorizationVerifier.Challenge());
 
-            if (string.IsNullOrWhiteSpace(h_settings.refresh_token))
-                client.Authorize(args, OnAuthorizeResult);
-            else
-                client.RefreshToken(r_settings.application_id, h_settings.refresh_token, OnRefreshToken);
-        }
+            if (string.IsNullOrWhiteSpace(refresh_token))
+                client.Authorize(args, (ClientResult result, string code, string redirectUri) =>
+                {
+                    bool success = result.Successful();
 
-        static void OnAuthorizeResult(ClientResult result, string code, string redirectUri)
-        {
-            if (!result.Successful())
-                Debug.LogWarning($"Authorization result: [{result.Error()}]");
+                    if (!success)
+                        Debug.LogWarning($"Authorization result: [{result.Error()}]");
+                    else
+                        client.GetToken(
+                            applicationId: r_settings.application_id,
+                            code: code,
+                            codeVerifier: codeVerifier,
+                            redirectUri: redirectUri,
+                            callback: OnRefreshToken
+                        );
+                });
             else
-                client.GetToken(
-                    applicationId: r_settings.GetValue().application_id,
-                    code: code,
-                    codeVerifier: codeVerifier,
-                    redirectUri: redirectUri,
-                    callback: OnRefreshToken
-                );
+                client.RefreshToken(r_settings.application_id, refresh_token, OnRefreshToken);
         }
 
         static void OnRefreshToken(ClientResult result, string accessToken, string refreshToken, AuthorizationTokenType tokenType, int expiresIn, string scopes)
         {
-            h_settings.refresh_token = refreshToken;
-            h_settings.SaveStaticJSon(true);
+            bool success = result.Successful();
+
+            h_settings_codes.GetValue().refresh_token = refreshToken;
+            h_settings_codes._value.SaveStaticJSon(true);
 
             if (accessToken == null || accessToken == string.Empty)
-                Debug.LogWarning("Failed to retrieve token");
+                Debug.LogWarning($"Failed to retrieve token ({nameof(success)} was {success})");
             else
-                client.UpdateToken(AuthorizationTokenType.Bearer, accessToken, OnUpdateToken);
-        }
-
-        static void OnUpdateToken(ClientResult result)
-        {
-            if (result.Successful())
-                client.Connect();
-            else
-                Debug.LogWarning($"Failed to update token: {result.Error()}");
+                client.UpdateToken(AuthorizationTokenType.Bearer, accessToken, (ClientResult result) =>
+                {
+                    if (result.Successful())
+                        client.Connect();
+                    else
+                        Debug.LogWarning($"Failed to update token: {result.Error()}");
+                });
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
 #if UNITY_EDITOR
-        [UnityEditor.MenuItem("Assets/" + nameof(_CORD_) + "/" + nameof(ShitcordMachine) + "." + nameof(StopClient))]
+        [UnityEditor.MenuItem(button_prefixe + nameof(StopClient))]
 #endif
         public static void StopClient()
         {

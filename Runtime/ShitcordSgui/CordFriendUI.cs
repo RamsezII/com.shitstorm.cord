@@ -10,8 +10,10 @@ namespace _CORD_
 {
     internal sealed class CordFriendUI : MonoBehaviour
     {
-        public TextMeshProUGUI text_name, text_status;
-        public RawImage rimg_avatar;
+        public CanvasGroup canvasGroup;
+        public Button button;
+        public TextMeshProUGUI text_dname, text_uname;
+        public RawImage rimg_avatar, rimg_status;
         public RelationshipHandle friend_handle;
         [SerializeField] Texture2D tex_avatar;
 
@@ -19,9 +21,12 @@ namespace _CORD_
 
         private void Awake()
         {
-            text_name = transform.Find("text_name").GetComponent<TextMeshProUGUI>();
-            text_status = transform.Find("text_status").GetComponent<TextMeshProUGUI>();
+            canvasGroup = GetComponent<CanvasGroup>();
+            button = GetComponent<Button>();
+            text_dname = transform.Find("text_displayname").GetComponent<TextMeshProUGUI>();
+            text_uname = transform.Find("text_username").GetComponent<TextMeshProUGUI>();
             rimg_avatar = transform.Find("avatar").GetComponent<RawImage>();
+            rimg_status = transform.Find("status_color").GetComponent<RawImage>();
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -37,9 +42,23 @@ namespace _CORD_
         public void UpdateFriend()
         {
             UserHandle user = friend_handle.User();
+            StatusType status = user.Status();
 
-            text_name.text = user.DisplayName();
-            text_status.text = user.Status().ToString();
+            text_dname.text = user.DisplayName();
+            text_uname.text = user.Username();
+
+            rimg_status.color = status switch
+            {
+                StatusType.Online => Color.green,
+                StatusType.Offline => Color.gray,
+                StatusType.Blocked => Color.purple,
+                StatusType.Idle => Color.yellow,
+                StatusType.Dnd => Color.red,
+                StatusType.Invisible => .5f * Color.green,
+                StatusType.Streaming => Color.magenta,
+                StatusType.Unknown => .5f * Color.yellow,
+                _ => new(.5f, .5f, .5f, .5f)
+            };
 
             NUCLEOR.instance.sequencer_parallel.AddRoutine(ELoadAvatar(
                 user.AvatarUrl(

@@ -86,6 +86,8 @@ namespace _CORD_
 
             LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)layout_friends.transform);
             layout_friends_prt.sizeDelta = new(0, layout_friends.preferredHeight);
+
+            SortFriends();
         }
 
         internal void UpdateFriends()
@@ -101,12 +103,6 @@ namespace _CORD_
 
             System.Array.Sort(friends, (a, b) =>
             {
-                StatusType statusA = a.friend_handle.User().Status();
-                StatusType statusB = b.friend_handle.User().Status();
-
-                if (statusA != statusB)
-                    return statusA.CompareTo(statusB);
-
                 return a.friend_handle.User().DisplayName().CompareTo(b.friend_handle.User().DisplayName());
             });
 

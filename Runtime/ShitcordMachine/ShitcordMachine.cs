@@ -16,14 +16,8 @@ namespace _CORD_
 
             codeVerifier = null;
 
-            logCallback = null;
-            client_status.Reset();
-
             client?.Dispose();
             client = null;
-
-            client_status.Reset();
-            client_status.AddListener(status => Debug.Log($"{typeof(ShitcordMachine)}.CHANGED_STATUS: \"{status.value}\"."));
         }
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]

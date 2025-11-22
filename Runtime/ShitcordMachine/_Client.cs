@@ -1,33 +1,12 @@
-﻿using _UTIL_;
-using Discord.Sdk;
-using System;
+﻿using Discord.Sdk;
 using UnityEngine;
 
 namespace _CORD_
 {
     partial class ShitcordMachine
     {
-        public struct ClientStatus
-        {
-            public Client.Status value;
-            public Client.Error error;
-            public int error_code;
-
-            //--------------------------------------------------------------------------------------------------------------
-
-            public ClientStatus(in Client.Status value, Client.Error error, int error_code)
-            {
-                this.value = value;
-                this.error = error;
-                this.error_code = error_code;
-            }
-        }
-
-        static Client client;
+        internal static Client client;
         static string codeVerifier;
-
-        public static Action<string, LoggingSeverity> logCallback;
-        public static readonly ValueHandler<ClientStatus> client_status = new();
 
 #if UNITY_EDITOR
         const string button_prefixe = "Assets/" + nameof(_CORD_) + "/";
@@ -63,7 +42,6 @@ namespace _CORD_
                             Debug.Log(message);
                             break;
                     }
-                    logCallback?.Invoke(message, severity);
                 },
                 minSeverity: LoggingSeverity.Warning
             );
@@ -77,7 +55,19 @@ namespace _CORD_
                     if (r_settings.GetValue().rich_presence_in_editor)
                         TryUpdateRichPresence();
 
-                client_status.Value = new(status, error, errorCode);
+                if (ShitcordSgui.instance != null)
+                    ShitcordSgui.instance.OnStatusChanged(status, error, errorCode);
+
+                Debug.Log($"{typeof(ShitcordMachine)}.CHANGED_STATUS: \"{status}\".");
+            });
+
+            client.SetUserUpdatedCallback(userID =>
+            {
+                if (ShitcordSgui.instance != null)
+                {
+                    ShitcordSgui.instance.UpdateFriends();
+                    ShitcordSgui.instance.SortFriends();
+                }
             });
         }
 

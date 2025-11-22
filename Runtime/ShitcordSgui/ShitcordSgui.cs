@@ -1,21 +1,21 @@
 using _ARK_;
 using _SGUI_;
+using Discord.Sdk;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace _CORD_
 {
-    public sealed partial class ShitcordSgui : SguiWindow1
+    internal sealed partial class ShitcordSgui : SguiWindow1
     {
+        public static ShitcordSgui instance;
+
         [SerializeField] Button button_login;
         [SerializeField] Traductable trad_status;
-
-        class Settings : HomeJSon
-        {
-            public bool auto_connection;
-        }
-
-        [SerializeField] Settings settings;
+        [SerializeField] RectTransform layout_friends_prt;
+        [SerializeField] VerticalLayoutGroup layout_friends;
+        [SerializeField] CordFriendUI prefab_friendUI;
+        CordFriendUI[] GetFriends() => prefab_friendUI.transform.parent.GetComponentsInChildren<CordFriendUI>(includeInactive: false);
 
         //--------------------------------------------------------------------------------------------------------------
 
@@ -41,8 +41,13 @@ namespace _CORD_
 
         protected override void Awake()
         {
-            button_login = transform.Find("rT/body/page_not-connected/panel1/rt/button_login").GetComponent<Button>();
-            trad_status = transform.Find("rT/body/page_not-connected/panel1/rt/text_status").GetComponent<Traductable>();
+            instance = this;
+
+            button_login = transform.Find("rT/body/page_not-connection/panel1/rt/button_login").GetComponent<Button>();
+            trad_status = transform.Find("rT/body/page_not-connection/panel1/rt/text_status").GetComponent<Traductable>();
+            prefab_friendUI = GetComponentInChildren<CordFriendUI>(true);
+            layout_friends = prefab_friendUI.GetComponentInParent<VerticalLayoutGroup>();
+            layout_friends_prt = (RectTransform)layout_friends.transform.parent;
 
             base.Awake();
         }
@@ -53,18 +58,60 @@ namespace _CORD_
         {
             base.Start();
 
-            ShitcordMachine.client_status.AddListener(OnStatusChanged);
-
             ShitcordMachine.StartClient();
 
             button_login.onClick.AddListener(ShitcordMachine.TryLogin);
+
+            prefab_friendUI.gameObject.SetActive(false);
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void OnStatusChanged(ShitcordMachine.ClientStatus status)
+        internal void OnStatusChanged(in Client.Status status, in Client.Error error, in int errorCode)
         {
-            trad_status.SetTrad(status.value);
+            trad_status.SetTrad(status);
+            LoadFriends();
+        }
+
+        internal void LoadFriends()
+        {
+            RelationshipHandle[] relations = ShitcordMachine.client.GetRelationships();
+
+            for (int i = 0; i < relations.Length; i++)
+            {
+                var clone = Instantiate(prefab_friendUI, prefab_friendUI.transform.parent);
+                clone.gameObject.SetActive(true);
+                clone.InitializeFriend(relations[i]);
+            }
+
+            LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)layout_friends.transform);
+            layout_friends_prt.sizeDelta = new(0, layout_friends.preferredHeight);
+        }
+
+        internal void UpdateFriends()
+        {
+            var friends = GetFriends();
+            for (int i = 0; i < friends.Length; i++)
+                friends[i].UpdateFriend();
+        }
+
+        internal void SortFriends()
+        {
+            var friends = GetFriends();
+
+            System.Array.Sort(friends, (a, b) =>
+            {
+                StatusType statusA = a.friend_handle.User().Status();
+                StatusType statusB = b.friend_handle.User().Status();
+
+                if (statusA != statusB)
+                    return statusA.CompareTo(statusB);
+
+                return a.friend_handle.User().DisplayName().CompareTo(b.friend_handle.User().DisplayName());
+            });
+
+            for (int i = 0; i < friends.Length; i++)
+                friends[i].transform.SetSiblingIndex(1 + i);
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -73,10 +120,10 @@ namespace _CORD_
         {
             base.OnDestroy();
 
-            ShitcordMachine.client_status.RemoveListener(OnStatusChanged);
-
-            return;
-            ShitcordMachine.StopClient();
+#if UNITY_EDITOR
+            if (!Application.isEditor)
+#endif
+                ShitcordMachine.StopClient();
         }
     }
 }

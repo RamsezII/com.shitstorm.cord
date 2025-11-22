@@ -21,8 +21,10 @@ namespace _CORD_
                 return;
             }
 
-            if (client_status.Value.value != Client.Status.Ready)
-                Debug.LogWarning($"{log_prefixe} {nameof(client)} is not {Client.Status.Ready} ({client_status._value}).");
+            Client.Status client_status = client.GetStatus();
+
+            if (client_status != Client.Status.Ready)
+                Debug.LogWarning($"{log_prefixe} {nameof(client)} is not {Client.Status.Ready} ({client_status}).");
 
             RSettings r_settings = ShitcordMachine.r_settings.GetValue();
 

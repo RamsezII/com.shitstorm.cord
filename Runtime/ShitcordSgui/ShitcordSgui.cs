@@ -115,11 +115,7 @@ namespace _CORD_
         protected override void OnDestroy()
         {
             base.OnDestroy();
-
-#if UNITY_EDITOR
-            if (!Application.isEditor)
-#endif
-                ShitcordMachine.StopClient();
+            ShitcordMachine.StopClient();
         }
     }
 }

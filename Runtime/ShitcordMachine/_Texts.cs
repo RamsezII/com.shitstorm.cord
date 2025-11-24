@@ -8,7 +8,7 @@ namespace _CORD_
     partial class ShitcordMachine
     {
         [Serializable]
-        internal class RSettings : ResourcesJSon
+        public class RSettings : ResourcesJSon
         {
 #if UNITY_EDITOR
             public bool rich_presence_in_editor;
@@ -17,7 +17,7 @@ namespace _CORD_
         }
 
         [Serializable]
-        internal class HSettings_infos : HomeJSon
+        public class HSettings_infos : HomeJSon
         {
             public bool auto_login;
             public bool rich_presence;
@@ -29,7 +29,7 @@ namespace _CORD_
             public string refresh_token;
         }
 
-        internal static readonly LazyValue<RSettings> r_settings = new(() =>
+        public static readonly LazyValue<RSettings> r_settings = new(() =>
         {
             ResourcesJSon.TryReadResourcesJSon(true, out RSettings value);
             return value;
@@ -41,7 +41,7 @@ namespace _CORD_
             return value;
         });
 
-        internal static HSettings_infos h_settings_infos;
+        public static HSettings_infos h_settings_infos;
 
         //--------------------------------------------------------------------------------------------------------------
 

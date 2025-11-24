@@ -52,8 +52,7 @@ namespace _CORD_
                     Debug.LogWarning($"Error: \"{error}\", code: \"{errorCode}\".");
 
                 if (status == Client.Status.Ready)
-                    if (r_settings.GetValue().rich_presence_in_editor)
-                        TryUpdateRichPresence();
+                    TryUpdateRichPresence();
 
                 if (ShitcordSgui.instance != null)
                     ShitcordSgui.instance.OnStatusChanged(status, error, errorCode);

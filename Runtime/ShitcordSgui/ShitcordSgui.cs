@@ -23,7 +23,10 @@ namespace _CORD_
         static void OnAfterSceneLoad()
         {
             if (ShitcordMachine.r_settings.GetValue().application_id > 0)
-                OSView.instance.GetSoftwareButton<ShitcordSgui>(force: true);
+            {
+                var button = OSView.instance.GetSoftwareButton<ShitcordSgui>(force: true);
+                button.hover_info = new("Shitcord");
+            }
             else
             {
                 var windows = ShowAlert(

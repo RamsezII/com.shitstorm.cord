@@ -26,7 +26,7 @@ namespace _CORD_
             if (client_status != Client.Status.Ready)
                 Debug.LogWarning($"{log_prefixe} {nameof(client)} is not {Client.Status.Ready} ({client_status}).");
 
-            RSettings r_settings = ShitcordMachine.r_settings.GetValue();
+            RSettings r_settings = ShitcordMachine.r_settings.Value;
 
             if (r_settings.application_id == 0)
             {
@@ -39,7 +39,7 @@ namespace _CORD_
             activity.SetApplicationId(r_settings.application_id);
             activity.SetType(ActivityTypes.Playing);
             activity.SetDetails($"{(Application.isEditor ? "[E] " : string.Empty)}{scene.name}");
-            activity.SetState($"net.v{_RUDP_.RudpSocket.r_settings.GetValue().VERSION}");
+            activity.SetState($"net.v{_RUDP_.RudpSocket.r_settings.Value.VERSION}");
 
             bool use_party = false;
             if (use_party)

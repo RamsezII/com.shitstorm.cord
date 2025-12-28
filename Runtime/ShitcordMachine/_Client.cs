@@ -81,7 +81,7 @@ namespace _CORD_
                 return;
             }
 
-            RSettings r_settings = ShitcordMachine.r_settings.GetValue();
+            RSettings r_settings = ShitcordMachine.r_settings.Value;
 
             if (r_settings.application_id == 0)
             {
@@ -89,7 +89,7 @@ namespace _CORD_
                 return;
             }
 
-            string refresh_token = h_settings_codes.GetValue(true).refresh_token;
+            string refresh_token = h_settings_codes.Value.refresh_token;
 
             var authorizationVerifier = client.CreateAuthorizationCodeVerifier();
             codeVerifier = authorizationVerifier.Verifier();
@@ -124,8 +124,8 @@ namespace _CORD_
         {
             bool success = result.Successful();
 
-            h_settings_codes.GetValue().refresh_token = refreshToken;
-            h_settings_codes._value.SaveStaticJSon(true);
+            h_settings_codes.Value.refresh_token = refreshToken;
+            h_settings_codes.Value.SaveStaticJSon(true);
 
             if (accessToken == null || accessToken == string.Empty)
                 Debug.LogWarning($"Failed to retrieve token ({nameof(success)} was {success})");

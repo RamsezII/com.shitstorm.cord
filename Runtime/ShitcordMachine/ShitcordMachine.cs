@@ -23,7 +23,7 @@ namespace _CORD_
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         static void OnBeforeSceneLoad()
         {
-            r_settings.GetValue(true);
+            r_settings.ForcedValue();
             LoadHomeSettings(true);
         }
 
@@ -34,7 +34,7 @@ namespace _CORD_
             NUCLEOR.delegates.OnApplicationFocus += () => LoadHomeSettings(false);
 
 #if UNITY_EDITOR
-            NUCLEOR.delegates.OnApplicationFocus += () => r_settings.GetValue(true);
+            NUCLEOR.delegates.OnApplicationFocus += () => r_settings.ForcedValue();
 #endif
         }
     }

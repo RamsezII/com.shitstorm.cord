@@ -49,13 +49,13 @@ namespace _CORD_
         [UnityEditor.MenuItem(button_prefixe + nameof(OpenRSettings))]
         static void OpenRSettings()
         {
-            Application.OpenURL(r_settings.GetValue().GetFilePath());
+            Application.OpenURL(r_settings.ForcedValue().GetFilePath());
         }
 
         [UnityEditor.MenuItem(button_prefixe + nameof(SaveRSettings))]
         static void SaveRSettings()
         {
-            r_settings.GetValue().SaveResourcesJSon();
+            r_settings.Value.SaveResourcesJSon();
         }
 
         [UnityEditor.MenuItem(button_prefixe + nameof(SaveHomeSettings))]

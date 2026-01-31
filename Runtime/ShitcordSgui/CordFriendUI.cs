@@ -60,7 +60,7 @@ namespace _CORD_
                 _ => new(.5f, .5f, .5f, .5f)
             };
 
-            NUCLEOR.instance.sequencer_parallel.AddRoutine(ELoadAvatar(
+            NUCLEOR.instance.scheduler_parallel.AddRoutine(ELoadAvatar(
                 user.AvatarUrl(
                     animatedType: UserHandle.AvatarType.Png,
                     staticType: UserHandle.AvatarType.Png

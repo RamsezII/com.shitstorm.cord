@@ -81,22 +81,20 @@ namespace _CORD_
                 return;
             }
 
-            RSettings r_settings = ShitcordMachine.r_settings.Value;
-
-            if (r_settings.application_id == 0)
+            if (application_id == 0)
             {
-                Debug.LogError($"{typeof(ShitcordMachine)}.{nameof(RSettings.application_id)}: {r_settings.application_id}");
+                Debug.LogError($"{typeof(ShitcordMachine)}.{nameof(application_id)}: {application_id}");
                 return;
             }
 
-            string refresh_token = h_settings_codes.Value.refresh_token;
+            string refresh_token = h_settings.refresh_token;
 
             var authorizationVerifier = client.CreateAuthorizationCodeVerifier();
             codeVerifier = authorizationVerifier.Verifier();
 
             var args = new AuthorizationArgs();
 
-            args.SetClientId(r_settings.application_id);
+            args.SetClientId(application_id);
             args.SetScopes(Client.GetDefaultCommunicationScopes());
             args.SetCodeChallenge(authorizationVerifier.Challenge());
 
@@ -109,7 +107,7 @@ namespace _CORD_
                         Debug.LogWarning($"Authorization result: [{result.Error()}]");
                     else
                         client.GetToken(
-                            applicationId: r_settings.application_id,
+                            applicationId: application_id,
                             code: code,
                             codeVerifier: codeVerifier,
                             redirectUri: redirectUri,
@@ -117,15 +115,15 @@ namespace _CORD_
                         );
                 });
             else
-                client.RefreshToken(r_settings.application_id, refresh_token, OnRefreshToken);
+                client.RefreshToken(application_id, refresh_token, OnRefreshToken);
         }
 
         static void OnRefreshToken(ClientResult result, string accessToken, string refreshToken, AuthorizationTokenType tokenType, int expiresIn, string scopes)
         {
             bool success = result.Successful();
 
-            h_settings_codes.Value.refresh_token = refreshToken;
-            h_settings_codes.Value.SaveStaticJSon(true);
+            h_settings.refresh_token = refreshToken;
+            h_settings.SaveStaticJSon(true);
 
             if (accessToken == null || accessToken == string.Empty)
                 Debug.LogWarning($"Failed to retrieve token ({nameof(success)} was {success})");

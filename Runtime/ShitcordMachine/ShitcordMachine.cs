@@ -11,8 +11,7 @@ namespace _CORD_
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         static void ResetStatics()
         {
-            h_settings_infos = null;
-            h_settings_codes.Reset();
+            h_settings = null;
 
             codeVerifier = null;
 
@@ -23,19 +22,14 @@ namespace _CORD_
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         static void OnBeforeSceneLoad()
         {
-            r_settings.ForcedValue();
-            LoadHomeSettings(true);
+            LoadSettings(true);
         }
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         static void OnAfterSceneLoad()
         {
             NUCLEOR.delegates.OnApplicationUnfocus += () => SaveHomeSettings(false);
-            NUCLEOR.delegates.OnApplicationFocus += () => LoadHomeSettings(false);
-
-#if UNITY_EDITOR
-            NUCLEOR.delegates.OnApplicationFocus += () => r_settings.ForcedValue();
-#endif
+            NUCLEOR.delegates.OnApplicationFocus += () => LoadSettings(false);
         }
     }
 }

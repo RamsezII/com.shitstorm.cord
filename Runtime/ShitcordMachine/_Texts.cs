@@ -1,6 +1,8 @@
 ﻿using _ARK_;
-using _UTIL_;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
+using System.IO;
 using UnityEngine;
 
 namespace _CORD_
@@ -8,40 +10,21 @@ namespace _CORD_
     partial class ShitcordMachine
     {
         [Serializable]
-        public class RSettings : ResourcesJSon
-        {
-#if UNITY_EDITOR
-            public bool rich_presence_in_editor;
-#endif
-            public ulong application_id;
-        }
-
-        [Serializable]
         public class HSettings_infos : HomeJSon
         {
             public bool auto_login;
             public bool rich_presence;
-        }
-
-        [Serializable]
-        internal class HSettings_codes : HomeJSon
-        {
             public string refresh_token;
         }
 
-        public static readonly LazyValue<RSettings> r_settings = new(() =>
-        {
-            ResourcesJSon.TryReadResourcesJSon(true, out RSettings value);
-            return value;
-        });
+        public static HSettings_infos h_settings;
 
-        internal static readonly LazyValue<HSettings_codes> h_settings_codes = new(() =>
-        {
-            StaticJSon.ReadStaticJSon(out HSettings_codes value, true, true);
-            return value;
-        });
-
-        public static HSettings_infos h_settings_infos;
+        static string GetSaveFName() => typeof(ShitcordMachine).GetJSonFileName();
+#if UNITY_EDITOR
+        static string GetSaveFPath() => Path.Combine(ArkPaths.dpath_ignore_resources, GetSaveFName());
+        public static bool rich_presence_in_editor;
+#endif
+        public static ulong application_id;
 
         //--------------------------------------------------------------------------------------------------------------
 
@@ -49,30 +32,46 @@ namespace _CORD_
         [UnityEditor.MenuItem(button_prefixe + nameof(OpenRSettings))]
         static void OpenRSettings()
         {
-            Application.OpenURL(r_settings.ForcedValue().GetFilePath());
+            SaveRSettings();
+            string fpath = GetSaveFPath();
+            Application.OpenURL(fpath);
         }
 
         [UnityEditor.MenuItem(button_prefixe + nameof(SaveRSettings))]
         static void SaveRSettings()
         {
-            r_settings.Value.SaveResourcesJSon();
+            string fpath = GetSaveFPath();
+            var jobj = new JObject()
+            {
+                [nameof(rich_presence_in_editor)] = rich_presence_in_editor,
+                [nameof(application_id)] = application_id,
+            };
+            jobj.NJSave(fpath);
+            UnityEditor.AssetDatabase.Refresh();
         }
-
-        [UnityEditor.MenuItem(button_prefixe + nameof(SaveHomeSettings))]
-        static void SaveHomeSettings() => SaveHomeSettings(true);
 #endif
         static void SaveHomeSettings(in bool log)
         {
-            h_settings_infos.SaveStaticJSon(log);
+            h_settings.SaveStaticJSon(log);
         }
 
-#if UNITY_EDITOR
-        [UnityEditor.MenuItem(button_prefixe + nameof(LoadHomeSettings))]
-        static void LoadHomeSettings() => LoadHomeSettings(true);
-#endif
-        static void LoadHomeSettings(in bool log)
+        static void LoadSettings(in bool log)
         {
-            StaticJSon.ReadStaticJSon(out h_settings_infos, true, log);
+            string rname = GetSaveFName()[..^4];
+            var tasset = Resources.Load<TextAsset>(rname);
+
+            if (tasset == null)
+                Debug.LogWarning($"{typeof(ShitcordMachine)} config file ({rname}) not found in resources.");
+            else
+            {
+                var jobj = JsonConvert.DeserializeObject<JObject>(tasset.text);
+#if UNITY_EDITOR
+                rich_presence_in_editor = jobj.Value<bool>(nameof(rich_presence_in_editor));
+#endif
+                application_id = jobj.Value<ulong>(nameof(application_id));
+            }
+
+            StaticJSon.ReadStaticJSon(out h_settings, true, log);
         }
     }
 }

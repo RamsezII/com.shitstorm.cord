@@ -22,19 +22,14 @@ namespace _CORD_
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         static void OnAfterSceneLoad()
         {
-            if (ShitcordMachine.r_settings.Value.application_id > 0)
+            if (ShitcordMachine.application_id > 0)
                 OSView.instance.AddSoftwareButton<ShitcordSgui>(new("Shitcord"));
             else
-            {
-                var windows = ShowAlert(
+                ShowAlert(
                     type: SguiDialogs.Error,
                     alert: out _,
                     traductions: new($"SHITCORD ID NOT SET.")
                 );
-#if UNITY_EDITOR
-                windows.onOblivion += () => Application.OpenURL(ShitcordMachine.r_settings.Value.GetFilePath());
-#endif
-            }
         }
 
         //--------------------------------------------------------------------------------------------------------------

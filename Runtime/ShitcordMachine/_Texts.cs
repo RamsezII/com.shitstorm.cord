@@ -21,7 +21,7 @@ namespace _CORD_
 
         static string GetSaveFName() => typeof(ShitcordMachine).GetJSonFileName();
 #if UNITY_EDITOR
-        static string GetSaveFPath() => Path.Combine(ArkPaths.dpath_ignore_resources, GetSaveFName());
+        static string GetSaveFPath() => Path.Combine(ArkPaths.dpath_resources, GetSaveFName());
         public static bool rich_presence_in_editor;
 #endif
         public static ulong application_id;

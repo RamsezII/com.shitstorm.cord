@@ -19,9 +19,8 @@ namespace _CORD_
 
         public static HSettings_infos h_settings;
 
-        static string GetSaveFName() => typeof(ShitcordMachine).GetJSonFileName();
 #if UNITY_EDITOR
-        static string GetSaveFPath() => Path.Combine(ArkPaths.dpath_resources, GetSaveFName());
+        static string GetSaveFPath() => Path.Combine(ArkPaths.dpath_resources, typeof(ShitcordMachine).GetJSonFileName());
         public static bool rich_presence_in_editor;
 #endif
         public static ulong application_id;
@@ -57,7 +56,7 @@ namespace _CORD_
 
         static void LoadSettings(in bool log)
         {
-            string rname = GetSaveFName()[..^4];
+            string rname = typeof(ShitcordMachine).GetJSonFileName_noTXT();
             var tasset = Resources.Load<TextAsset>(rname);
 
             if (tasset == null)
@@ -69,6 +68,13 @@ namespace _CORD_
                 rich_presence_in_editor = jobj.Value<bool>(nameof(rich_presence_in_editor));
 #endif
                 application_id = jobj.Value<ulong>(nameof(application_id));
+                if (application_id == 0)
+#if UNITY_EDITOR
+                    if (Application.isEditor)
+                        Debug.LogWarning($"{typeof(ShitcordMachine)} application_id is 0, please set it in the config file. ({GetSaveFPath()})");
+                    else
+#endif
+                        Debug.LogWarning($"{typeof(ShitcordMachine)} application_id is 0, please set it in the config file.");
             }
 
             StaticJSon.ReadStaticJSon(out h_settings, true, log);

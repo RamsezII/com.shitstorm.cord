@@ -20,7 +20,7 @@ namespace _CORD_
         public static HSettings_infos h_settings;
 
 #if UNITY_EDITOR
-        static string GetSaveFPath() => Path.Combine(ArkPaths.dpath_resources, typeof(ShitcordMachine).GetJSonFileName());
+        static string GetSaveFPath() => Path.Combine(ArkMachine.DFResources.FullName, typeof(ShitcordMachine).GetJSonFileName());
         public static bool rich_presence_in_editor;
 #endif
         public static ulong application_id;

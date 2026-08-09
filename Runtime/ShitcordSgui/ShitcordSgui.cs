@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 namespace _CORD_
 {
-    internal sealed partial class ShitcordSgui : SguiWindow1
+    internal sealed partial class ShitcordSgui : SguiSoftware
     {
         public static ShitcordSgui instance;
 

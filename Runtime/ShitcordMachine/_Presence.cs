@@ -49,7 +49,7 @@ namespace _CORD_
             }
 
             ActivityTimestamps timestamps = new();
-            timestamps.SetStart((ulong)NUCLEOR.timestamp_appstart.ToUnixTimeMilliseconds());
+            timestamps.SetStart((ulong)NUCLEOR.timestamp_editorStart.ToUnixTimeMilliseconds());
             activity.SetTimestamps(timestamps);
 
             client.UpdateRichPresence(activity, result =>

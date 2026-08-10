@@ -64,7 +64,7 @@ namespace _CORD_
 
         internal void OnStatusChanged(in Client.Status status, in Client.Error error, in int errorCode)
         {
-            trad_status.SetTrad(status.ToString());
+            trad_status.SetText(status.ToString());
             LoadFriends();
         }
 

@@ -34,7 +34,7 @@ namespace _CORD_
 
         //--------------------------------------------------------------------------------------------------------------
 
-        protected override void OnAwake()
+        protected override void OnInitialize()
         {
             instance = this;
 
@@ -44,7 +44,7 @@ namespace _CORD_
             layout_friends = prefab_friendUI.GetComponentInParent<VerticalLayoutGroup>();
             layout_friends_prt = (RectTransform)layout_friends.transform.parent;
 
-            base.OnAwake();
+            base.OnInitialize();
         }
 
         //--------------------------------------------------------------------------------------------------------------

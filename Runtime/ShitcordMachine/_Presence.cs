@@ -43,7 +43,7 @@ namespace _CORD_
             if (use_party)
             {
                 ActivityParty party = new();
-                party.SetCurrentSize(NUCLEOR.instance.party_count._value);
+                party.SetCurrentSize(NUCLEOR.instance.players._collection.Count);
                 party.SetMaxSize(byte.MaxValue - 1);
                 activity.SetParty(party);
             }

@@ -1,19 +1,21 @@
 using _ARK_;
+using _SGUI_.composer;
 using _SGUI_;
 using Discord.Sdk;
 using UnityEngine;
 using UnityEngine.UI;
+using Unity.Scripting.LifecycleManagement;
 
 namespace _CORD_
 {
-    internal sealed partial class ShitcordSgui : SguiSoftware
+    internal sealed partial class ShitcordSgui : SguiFrame
     {
-        public static ShitcordSgui instance;
+        [AutoStaticsCleanup] public static ShitcordSgui instance;
 
         [SerializeField] Button button_login;
         [SerializeField] Traductable trad_status;
-        [SerializeField] RectTransform layout_friends_prt;
-        [SerializeField] VerticalLayoutGroup layout_friends;
+        [SerializeField] ScrollRect scrollview_friends;
+        [SerializeField] VerticalLayoutGroup vlayout_friends;
         [SerializeField] CordFriendUI prefab_friendUI;
         CordFriendUI[] GetFriends() => prefab_friendUI.transform.parent.GetComponentsInChildren<CordFriendUI>(includeInactive: false);
 
@@ -34,17 +36,11 @@ namespace _CORD_
 
         //--------------------------------------------------------------------------------------------------------------
 
-        protected override void OnInitialize()
+        protected override void Awake()
         {
             instance = this;
 
-            button_login = transform.Find("rT/body/page_not-connection/panel1/rt/button_login").GetComponent<Button>();
-            trad_status = transform.Find("rT/body/page_not-connection/panel1/rt/text_status").GetComponent<Traductable>();
-            prefab_friendUI = GetComponentInChildren<CordFriendUI>(true);
-            layout_friends = prefab_friendUI.GetComponentInParent<VerticalLayoutGroup>();
-            layout_friends_prt = (RectTransform)layout_friends.transform.parent;
-
-            base.OnInitialize();
+            base.Awake();
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -79,8 +75,8 @@ namespace _CORD_
                 clone.InitializeFriend(relations[i]);
             }
 
-            LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)layout_friends.transform);
-            layout_friends_prt.sizeDelta = new(0, layout_friends.preferredHeight);
+            LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)vlayout_friends.transform);
+            scrollview_friends.content.sizeDelta = new(0, vlayout_friends.preferredHeight);
 
             SortFriends();
         }

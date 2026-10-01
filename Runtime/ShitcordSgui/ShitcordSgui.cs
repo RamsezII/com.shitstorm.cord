@@ -27,7 +27,7 @@ namespace _CORD_
             if (ShitcordMachine.application_id > 0)
                 OSView.instance.AddSoftwareButton<ShitcordSgui>(new("Shitcord"));
             else
-                ShowAlert(
+                SguiCustom.ShowAlert(
                     type: SguiDialogs.Error,
                     alert: out _,
                     traductions: new($"SHITCORD ID NOT SET.")

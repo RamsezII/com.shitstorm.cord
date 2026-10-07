@@ -1,6 +1,5 @@
 using _ARK_;
 using _SGUI_.composer;
-using _SGUI_;
 using Discord.Sdk;
 using UnityEngine;
 using UnityEngine.UI;
@@ -18,21 +17,6 @@ namespace _CORD_
         [SerializeField] VerticalLayoutGroup vlayout_friends;
         [SerializeField] CordFriendUI prefab_friendUI;
         CordFriendUI[] GetFriends() => prefab_friendUI.transform.parent.GetComponentsInChildren<CordFriendUI>(includeInactive: false);
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
-        static void OnAfterSceneLoad()
-        {
-            if (ShitcordMachine.application_id > 0)
-                OSView.instance.AddSoftwareButton<ShitcordSgui>(new("Shitcord"));
-            else
-                SguiCustom.ShowAlert(
-                    type: SguiDialogs.Error,
-                    alert: out _,
-                    traductions: new($"SHITCORD ID NOT SET.")
-                );
-        }
 
         //--------------------------------------------------------------------------------------------------------------
 
